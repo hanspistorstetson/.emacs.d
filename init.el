@@ -2,14 +2,24 @@
       user-mail-address "hpistor@stetson.edu")
 
 
-(setq gc-cons-threshold 50000000)
+(setq gc-cons-threshold (* 1024 1024 1024))
 (setq large-file-warning-threshold 100000000)
 
 (require 'package)
 (setq package-enable-at-startup nil)
-
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+
+(setq package-list
+      '(evil-magit magit key-chord flycheck-rust ace-window counsel-projectile smartparens smart-mode-line-powerline-theme doom-themes use-package projectile counsel swiper ivy cargo eglot rust-mode evil))
+
+;; activate all packages
 (package-initialize)
+
+;; fetch list of packages available
+(unless package-archive-contents (package-refresh-contents))
+
+;; install missing packages
+(dolist (package package-list) (unless (package-installed-p package) (package-install package)))
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -32,8 +42,8 @@
 (setq inhibit-startup-screen t)
 
 (setq frame-title-format '((:eval (if (buffer-file-name)
-                      (abbreviate-file-name (buffer-file-name))
-                    "%b"))))
+                                      (abbreviate-file-name (buffer-file-name))
+                                    "%b"))))
 
 (setq scroll-margin 0
       scroll-conservatively 100000
@@ -63,7 +73,7 @@
 (global-auto-revert-mode t)
 
 (setq-default tab-width 4
-          indent-tabs-mode nil)
+              indent-tabs-mode nil)
 
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (add-hook 'before-save-hook 'whitespace-cleanup)
@@ -113,7 +123,7 @@
 (global-set-key (kbd "M-p") 'ace-window)
 
 (defun hpistor/switch-to-previous-buffer ()
-  "Switch to the previous open buffer"
+  "Switch to the previous open buffer."
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
@@ -123,7 +133,7 @@
 
 
 (add-hook 'rust-mode-hook
-      (lambda () (setq indent-tabs-mode nil)))
+          (lambda () (setq indent-tabs-mode nil)))
 (add-hook 'rust-mode-hook 'eglot-ensure)
 (add-hook 'rust-mode-hook 'cargo-minor-mode)
 (add-hook 'rust-mode-hook #'flycheck-rust-setup)
@@ -135,6 +145,9 @@
 (evil-mode 1)
 (evil-escape-mode)
 
+;; Pressing enter after ({[ works correctly now ]})
+(electric-pair-mode 1)
+
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
 (ivy-mode 1)
@@ -144,13 +157,16 @@
 
 (global-set-key (kbd "C-c I") #'hpistor/find-init-file)
 (defun hpistor/find-init-file()
-  "Edit the user's init file"
+  "Edit the user's init file."
   (interactive)
   (find-file user-init-file))
 
 (require 'evil)
 (require 'evil-magit)
 (require 'rust-mode)
+
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -169,3 +185,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+(provide 'init)
+;;; init.el ends here.
