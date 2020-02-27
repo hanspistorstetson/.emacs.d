@@ -121,9 +121,6 @@
 
     (setq rust-format-on-save t)
 
-    (setq evil-want-C-u-scroll t)
-    (evil-mode 1)
-    (evil-escape-mode)
 
     ;; Pressing enter after ({[ works correctly now ]})
     (electric-pair-mode 1)
@@ -141,9 +138,19 @@
       (interactive)
       (find-file (expand-file-name "config.org" user-emacs-directory)))
 
-    (require 'evil)
-    (require 'evil-magit)
-    (require 'rust-mode)
+
+
+    (use-package evil
+      :ensure t
+      :init
+      (setq evil-want-C-u-scroll t)
+      :config
+      (evil-mode)
+      )
+
+    (use-package evil-magit :ensure t)
+    (use-package evil-escape :ensure t)
+    (use-package rust-mode :ensure t)
   #+END_SRC
 
 
