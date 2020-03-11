@@ -53,7 +53,7 @@
     ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(package-selected-packages
    (quote
-    (evil-escape-mode evil-magit magit key-chord flycheck-rust ace-window counsel-projectile smartparens smart-mode-line-powerline-theme doom-themes use-package projectile counsel swiper ivy cargo eglot rust-mode evil))))
+    (yaml-mode evil-escape-mode evil-magit magit key-chord flycheck-rust ace-window counsel-projectile smartparens smart-mode-line-powerline-theme doom-themes use-package projectile counsel swiper ivy cargo eglot rust-mode evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -149,8 +149,97 @@
       )
 
     (use-package evil-magit :ensure t)
-    (use-package evil-escape :ensure t)
+    (use-package evil-escape
+      :ensure t
+      :init
+      (evil-escape-mode))
     (use-package rust-mode :ensure t)
+    (use-package yaml-mode :ensure t :mode ("\\.yml$" . yaml-mode))
+
+    (defvar jekyll-directory (expand-file-name "~/Documents/blog/src/") "Path to Jekyll Blog.")
+    (defvar jekyll-drafts-dir "_drafts/" "Drafts Directory.")
+    (defvar jekyll-posts-dir "_posts/" "Posts directory.")
+    (defvar jekyll-post-ext ".org" "File extension of posts.")
+    (defvar jekyll-post-template "BEGIN_EXPORT\n---\nlayout: post\ntitle: %s\nexcerpt: \ncategories:\n  -  \ntags:\n  -  \n---\n#+END_EXPORT\n\n* " "Default template for posts.")
+
+    (defun jekyll-make-slug (s)
+      "Turn S into slug."
+      (replace-regexp-in-string
+       " " "-" (downcase
+                (replace-regexp-in-string
+                 "[^A-Za-z0-9 ]" "" s)))
+      )
+
+    (defun jekyll-yaml-escape (s)
+      "Escape S for YAML."
+      (if (or (string-match ":" s)
+              (string-match "\"" s))
+          (concat "\"" (replace-regexp-in-string "\"" "\\\\\"" s) "\"") s)
+      )
+
+    (defun jekyll-draft-post (title)
+      "Create new Jekyll blog post with title TITLE."
+      (interactive "sPost Title: ")
+      (let ((draft-file (concat jekyll-directory jekyll-drafts-dir
+                                (jekyll-make-slug title) jekyll-post-ext)))
+        (if (file-exists-p draft-file)
+            (find-file draft-file)
+          (find-file draft-file)
+          (insert (format jekyll-post-template (jekyll-yaml-escape title)))
+          )
+        ))
+    (defun jekyll-publish-post ()
+      "Move a draft post tothe posts directory & rename it to contain date."
+      (interactive)
+      (cond
+       ((not (equal (file-name-directory (buffer-file-name (current-buffer))) (concat jekyll-directory jekyll-drafts-dir)))
+        (message "this is not a draft post."))
+       (t
+        (let ((filename
+               (concat jekyll-directory jekyll-posts-dir
+                       (format-time-string "%Y-%m-%d-")
+                       (file-name-nondirectory
+                        (buffer-file-name (current-buffer)))))
+              (old-point (point)))
+          (rename-file (buffer-file-name (current-buffer))
+                       filename)
+          (kill-buffer nil)
+          (find-file filename)
+          (set-window-point (selected-window) old-point)))))
+
+    (defun org-jekyll-post-link-follow (path) (org-open-file-with-emacs path))
+    (defun org-jekyll-post-link-export (path desc format)
+      (cond
+       ((eq format 'html)
+        (format "<a href=\"{%% post_url %s %%}\">%s</a>" path desc)))
+      )
+    (org-add-link-type "jekyll-post" 'org-jekyll-post-link-follow 'org-jekyll-post-link-export)
+
+    (setq org-publish-project-alist
+          '(("org-acaird"
+             ;; Path to your org files.
+             :base-directory "~/Documents/blog/src"
+             :base-extension "org"
+             ;; Path to your Jekyll project.
+             :publishing-directory "~/Documents/blog/hpistor.github.io/"
+             :recursive t
+             :publishing-function org-html-publish-to-html
+             :with-toc nil
+             :headline-levels 4
+             :auto-preamble nil
+             :auto-sitemapn il
+             :html-extension "html"
+             :body-only t ;; Only export section between <body> </body> (body-only)
+             )
+            ("org-static-acaird"
+             :base-directory "~/Documents/blog/src/images"
+             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|php"
+             :publishing-directory "~/Documents/blog/hpistor.github.io/assets"
+             :recursive t
+             :publishing-function org-publish-attachment)
+
+            ("blog" :components ("org-acaird" "org-static-acaird"))
+            ))
   #+END_SRC
 
 
