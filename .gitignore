@@ -24,4 +24,4 @@ site-lisp/adventur-mode
 /transient/history.el
 /transient/values.el
 .cache/
-
+config.el
